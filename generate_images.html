@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate CAPTCHA Images</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        canvas {
+            border: 2px solid #333;
+            margin: 10px;
+            background: white;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>CAPTCHA Image Generator</h1>
+    <p>Right-click on each image and select "Save image as..." to download</p>
+    
+    <div class="container">
+        <div>
+            <h3>Outer Circle</h3>
+            <canvas id="outerCanvas" width="600" height="600"></canvas>
+            <br>
+            <button onclick="downloadImage('outerCanvas', 'outer_circle.png')">Download Outer Circle</button>
+        </div>
+        
+        <div>
+            <h3>Inner Circle</h3>
+            <canvas id="innerCanvas" width="600" height="600"></canvas>
+            <br>
+            <button onclick="downloadImage('innerCanvas', 'inner_circle.png')">Download Inner Circle</button>
+        </div>
+    </div>
+
+    <script>
+        // Draw outer circle
+        function drawOuterCircle() {
+            const canvas = document.getElementById('outerCanvas');
+            const ctx = canvas.getContext('2d');
+            const centerX = 300;
+            const centerY = 300;
+            const radius = 280;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, 600, 600);
+
+            // Draw gradient background
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+            gradient.addColorStop(0, '#E8E8E8');
+            gradient.addColorStop(1, '#C0C0C0');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw border
+            ctx.strokeStyle = '#999';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Draw pattern lines
+            ctx.strokeStyle = '#888';
+            ctx.lineWidth = 3;
+            for (let i = 0; i < 12; i++) {
+                const angle = (i * 30) * Math.PI / 180;
+                const x1 = centerX + Math.cos(angle) * (radius * 0.7);
+                const y1 = centerY + Math.sin(angle) * (radius * 0.7);
+                const x2 = centerX + Math.cos(angle) * (radius * 0.9);
+                const y2 = centerY + Math.sin(angle) * (radius * 0.9);
+                
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+
+            // Draw distinctive mark at 0 degrees (top)
+            const markAngle = -Math.PI / 2; // -90 degrees (top)
+            const markX = centerX + Math.cos(markAngle) * (radius * 0.8);
+            const markY = centerY + Math.sin(markAngle) * (radius * 0.8);
+            
+            // Outer circle of mark
+            ctx.fillStyle = '#FF6B6B';
+            ctx.beginPath();
+            ctx.arc(markX, markY, 20, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Inner circle of mark
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(markX, markY, 8, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw inner circle
+        function drawInnerCircle() {
+            const canvas = document.getElementById('innerCanvas');
+            const ctx = canvas.getContext('2d');
+            const centerX = 300;
+            const centerY = 300;
+            const radius = 180;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, 600, 600);
+
+            // Draw gradient background
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+            gradient.addColorStop(0, '#A5D6F7');
+            gradient.addColorStop(1, '#64B5F6');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw border
+            ctx.strokeStyle = '#42A5F5';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Draw pattern lines from center
+            ctx.strokeStyle = '#1976D2';
+            ctx.lineWidth = 4;
+            for (let i = 0; i < 8; i++) {
+                const angle = (i * 45) * Math.PI / 180;
+                const x = centerX + Math.cos(angle) * (radius * 0.85);
+                const y = centerY + Math.sin(angle) * (radius * 0.85);
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+
+            // Draw center circle
+            ctx.fillStyle = '#1565C0';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 30, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw distinctive mark at 0 degrees (top) to match outer circle
+            const markAngle = -Math.PI / 2; // -90 degrees (top)
+            const markX = centerX + Math.cos(markAngle) * (radius * 0.65);
+            const markY = centerY + Math.sin(markAngle) * (radius * 0.65);
+            
+            // Outer circle of mark
+            ctx.fillStyle = '#FF6B6B';
+            ctx.beginPath();
+            ctx.arc(markX, markY, 18, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Inner circle of mark
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(markX, markY, 7, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Download image function
+        function downloadImage(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Draw images on load
+        window.onload = function() {
+            drawOuterCircle();
+            drawInnerCircle();
+        };
+    </script>
+</body>
+</html>
