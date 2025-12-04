@@ -44,7 +44,7 @@ Add this to your package's `pubspec.yaml` file:
 dependencies:
   flutter_recaptcha:
     git:
-      url: https://github.com/yourusername/flutter_recaptcha.git
+      url: https://github.com/SwanFlutter/flutter_recaptcha
 ```
 
 Or if published to pub.dev:
