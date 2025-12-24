@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_recaptcha/flutter_recaptcha_platform_interface.dart';
 
 /// A fingerprint authentication CAPTCHA widget that simulates biometric verification.
 ///
@@ -97,7 +97,7 @@ class _FingerprintCaptchaWidgetState extends State<FingerprintCaptchaWidget>
     _animationController.repeat(reverse: true);
   }
 
-  void _startFingerprintScan() {
+  void _startFingerprintScan() async {
     if (_isScanning || _isVerified) return;
 
     setState(() {
@@ -118,14 +118,23 @@ class _FingerprintCaptchaWidgetState extends State<FingerprintCaptchaWidget>
     });
   }
 
-  void _completeScan() {
+  void _completeScan() async {
     _scanController.stop();
     _scanController.reset();
 
-    // Simulate fingerprint verification
-    Future.delayed(const Duration(milliseconds: 500), () {
-      final random = Random();
-      final isSuccess = random.nextDouble() > 0.3; // 70% success rate
+    try {
+      final isAvailable = await FlutterRecaptchaPlatform.instance.isBiometricAvailable();
+      
+      if (!isAvailable) {
+        setState(() {
+          _isScanning = false;
+        });
+        _showError('Biometric authentication not available on this device');
+        return;
+      }
+
+      final result = await FlutterRecaptchaPlatform.instance.authenticateWithBiometric();
+      final isSuccess = result.success;
 
       setState(() {
         _isScanning = false;
@@ -135,15 +144,21 @@ class _FingerprintCaptchaWidgetState extends State<FingerprintCaptchaWidget>
       if (isSuccess) {
         widget.onVerified(true);
       } else {
-        _showError();
+        final errorMessage = result.errorMessage ?? 'Fingerprint verification failed';
+        _showError(errorMessage);
       }
-    });
+    } catch (e) {
+      setState(() {
+        _isScanning = false;
+      });
+      _showError('Error during biometric authentication: $e');
+    }
   }
 
-  void _showError() {
+  void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Fingerprint verification failed. Please try again.'),
+      SnackBar(
+        content: Text(message),
         backgroundColor: Colors.red,
       ),
     );

@@ -18,6 +18,9 @@ import 'src/widgets/shape_matching_captcha_widget.dart';
 import 'src/widgets/slider_captcha_widget.dart';
 import 'src/widgets/text_captcha_widget.dart';
 
+export 'package:flutter_recaptcha/src/tools/recaptcha_config.dart';
+export 'package:flutter_recaptcha/src/tools/recaptcha_result.dart';
+
 export 'src/tools/challenge_difficulty.dart';
 export 'src/tools/recaptcha_type.dart';
 // Export all public APIs

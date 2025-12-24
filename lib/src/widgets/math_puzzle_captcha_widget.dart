@@ -1,24 +1,23 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-
+import '../../flutter_recaptcha_platform_interface.dart';
 import '../tools/challenge_difficulty.dart';
 
 /// A mathematical puzzle CAPTCHA widget that challenges users with arithmetic problems.
-///
+/// 
 /// This widget provides mathematical challenges with varying difficulty levels:
 /// - Easy: Simple arithmetic (+, -, ×) with small numbers
 /// - Medium: Multi-step equations with order of operations
 /// - Hard: Square roots, percentages, and complex equations
 /// - Adaptive: Adjusts to user skill level
-///
+/// 
 /// Features include:
 /// - Dynamic question generation based on difficulty
 /// - Hint system to assist users
 /// - Visual difficulty indicator
 /// - Input validation with error feedback
 /// - Success confirmation with visual feedback
-///
+/// 
 /// Example usage:
 /// ```dart
 /// MathPuzzleCaptchaWidget(
@@ -34,37 +33,36 @@ import '../tools/challenge_difficulty.dart';
 /// ```
 class MathPuzzleCaptchaWidget extends StatefulWidget {
   /// Callback function called when the answer is verified
-  ///
+  /// 
   /// [isSuccess] - true if the answer is correct, false otherwise
   final Function(bool) onVerified;
-
+  
   /// Optional title displayed above the math challenge
-  ///
+  /// 
   /// Defaults to 'Math Puzzle Challenge'
   final String? title;
-
+  
   /// Primary color for UI elements like buttons and accents
-  ///
+  /// 
   /// Defaults to Colors.blue
   final Color? primaryColor;
-
+  
   /// Difficulty level for the math challenges
-  ///
+  /// 
   /// Affects the complexity of generated equations
   /// Defaults to ChallengeDifficulty.medium
   final ChallengeDifficulty difficulty;
 
   const MathPuzzleCaptchaWidget({
-    super.key,
+    Key? key,
     required this.onVerified,
     this.title,
     this.primaryColor,
     this.difficulty = ChallengeDifficulty.medium,
-  });
+  }) : super(key: key);
 
   @override
-  State<MathPuzzleCaptchaWidget> createState() =>
-      _MathPuzzleCaptchaWidgetState();
+  State<MathPuzzleCaptchaWidget> createState() => _MathPuzzleCaptchaWidgetState();
 }
 
 class _MathPuzzleCaptchaWidgetState extends State<MathPuzzleCaptchaWidget> {
@@ -82,7 +80,7 @@ class _MathPuzzleCaptchaWidgetState extends State<MathPuzzleCaptchaWidget> {
 
   void _generateQuestion() {
     final random = Random();
-
+    
     switch (widget.difficulty) {
       case ChallengeDifficulty.easy:
         _generateEasyQuestion(random);
@@ -105,7 +103,7 @@ class _MathPuzzleCaptchaWidgetState extends State<MathPuzzleCaptchaWidget> {
     final b = random.nextInt(20) + 1;
     final operations = ['+', '-', '×'];
     final operation = operations[random.nextInt(operations.length)];
-
+    
     switch (operation) {
       case '+':
         _question = '$a + $b = ?';
@@ -126,13 +124,13 @@ class _MathPuzzleCaptchaWidgetState extends State<MathPuzzleCaptchaWidget> {
     final a = random.nextInt(50) + 10;
     final b = random.nextInt(20) + 5;
     final c = random.nextInt(10) + 1;
-
+    
     final operations = ['+', '-', '×'];
     final op1 = operations[random.nextInt(operations.length)];
     final op2 = operations[random.nextInt(operations.length)];
-
+    
     _question = '$a $op1 $b $op2 $c = ?';
-
+    
     switch (op1) {
       case '+':
         switch (op2) {
@@ -178,7 +176,7 @@ class _MathPuzzleCaptchaWidgetState extends State<MathPuzzleCaptchaWidget> {
 
   void _generateHardQuestion(Random random) {
     final type = random.nextInt(3);
-
+    
     switch (type) {
       case 0: // Square root
         final a = random.nextInt(20) + 4;
@@ -357,9 +355,7 @@ class _MathPuzzleCaptchaWidgetState extends State<MathPuzzleCaptchaWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
-                onPressed: _isVerified
-                    ? null
-                    : () => setState(() => _showHint = !_showHint),
+                onPressed: _isVerified ? null : () => setState(() => _showHint = !_showHint),
                 child: Text(_showHint ? 'Hide Hint' : 'Show Hint'),
               ),
               TextButton.icon(

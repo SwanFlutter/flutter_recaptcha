@@ -180,8 +180,9 @@ class ShapeMatchingDialog extends StatefulWidget {
 class _ShapeMatchingDialogState extends State<ShapeMatchingDialog> {
   List<ShapeBox> _shapeBoxes = [];
   String _instruction = '';
-  int _requiredSelections = 0;
+  ShapeType _targetShapeType = ShapeType.circle;
   List<int> _selectedIndices = [];
+  final int _requiredSelections = 3;
 
   @override
   void initState() {
@@ -194,40 +195,43 @@ class _ShapeMatchingDialogState extends State<ShapeMatchingDialog> {
     _shapeBoxes = [];
     _selectedIndices = [];
 
-    // Define shape types
-    final shapeTypes = [
+    // Define only 5 shape types as requested
+    final availableShapeTypes = [
       ShapeType.circle,
       ShapeType.square,
       ShapeType.rectangle,
       ShapeType.triangle,
       ShapeType.pentagon,
-      ShapeType.hexagon,
-      ShapeType.star,
-      ShapeType.diamond,
-      ShapeType.oval,
     ];
 
-    // Shuffle and take 9 shapes
-    shapeTypes.shuffle(random);
-    final selectedShapes = shapeTypes.take(9).toList();
+    // Randomly select target shape type
+    _targetShapeType = availableShapeTypes[random.nextInt(availableShapeTypes.length)];
 
-    // Count circles for instruction
-    final circleCount = selectedShapes
-        .where((s) => s == ShapeType.circle)
-        .length;
+    // Create instruction based on target shape
+    final shapeNames = {
+      ShapeType.circle: 'CIRCLES',
+      ShapeType.square: 'SQUARES',
+      ShapeType.rectangle: 'RECTANGLES',
+      ShapeType.triangle: 'TRIANGLES',
+      ShapeType.pentagon: 'POLYGONS',
+    };
+    _instruction = 'Select 3 ${shapeNames[_targetShapeType]} from the shapes below';
 
-    // Create instruction
-    if (circleCount > 0) {
-      _instruction = 'Select all CIRCLES from the shapes below';
-      _requiredSelections = circleCount;
-    } else {
-      // If no circles, ask for squares
-      final squareCount = selectedShapes
-          .where((s) => s == ShapeType.square)
-          .length;
-      _instruction = 'Select all SQUARES from the shapes below';
-      _requiredSelections = squareCount;
+    // Generate 9 shapes ensuring at least 3 are the target type
+    final selectedShapes = <ShapeType>[];
+    
+    // Add exactly 3 target shapes
+    for (int i = 0; i < 3; i++) {
+      selectedShapes.add(_targetShapeType);
     }
+    
+    // Fill remaining 6 with random shapes (can include more target shapes)
+    for (int i = 0; i < 6; i++) {
+      selectedShapes.add(availableShapeTypes[random.nextInt(availableShapeTypes.length)]);
+    }
+    
+    // Shuffle to randomize positions
+    selectedShapes.shuffle(random);
 
     // Create shape boxes
     for (int i = 0; i < selectedShapes.length; i++) {
@@ -239,32 +243,49 @@ class _ShapeMatchingDialogState extends State<ShapeMatchingDialog> {
 
   void _toggleShape(int index) {
     setState(() {
+      // Toggle selection - allow up to 3 selections
       if (_selectedIndices.contains(index)) {
         _selectedIndices.remove(index);
         _shapeBoxes[index].isSelected = false;
       } else {
-        _selectedIndices.add(index);
-        _shapeBoxes[index].isSelected = true;
+        // Only allow up to 3 selections
+        if (_selectedIndices.length < _requiredSelections) {
+          _selectedIndices.add(index);
+          _shapeBoxes[index].isSelected = true;
+        } else {
+          // Show message that max selections reached
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Maximum 3 shapes can be selected. Deselect one to select another.'),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       }
     });
   }
 
   void _verifySelection() {
-    // Count selected circles
-    int selectedCircles = 0;
-    for (final index in _selectedIndices) {
-      if (_shapeBoxes[index].shapeType == ShapeType.circle) {
-        selectedCircles++;
-      }
+    // Check if exactly 3 shapes are selected
+    if (_selectedIndices.length != _requiredSelections) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select exactly $_requiredSelections shapes'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
     }
 
-    // Check if correct number of circles selected
-    final totalCircles = _shapeBoxes
-        .where((box) => box.shapeType == ShapeType.circle)
-        .length;
-    final isCorrect =
-        selectedCircles == totalCircles &&
-        _selectedIndices.length == totalCircles;
+    // Check if all selected shapes are of the target type
+    bool isCorrect = true;
+    for (final index in _selectedIndices) {
+      if (_shapeBoxes[index].shapeType != _targetShapeType) {
+        isCorrect = false;
+        break;
+      }
+    }
 
     widget.onVerified(isCorrect);
   }
@@ -376,7 +397,7 @@ class _ShapeMatchingDialogState extends State<ShapeMatchingDialog> {
 
               // Selection info
               Text(
-                'Selected: ${_selectedIndices.length} shapes',
+                'Selected: ${_selectedIndices.length}/$_requiredSelections shapes',
                 style: TextStyle(
                   color: _selectedIndices.length == _requiredSelections
                       ? Colors.green

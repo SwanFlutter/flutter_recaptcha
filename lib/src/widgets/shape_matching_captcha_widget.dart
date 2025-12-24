@@ -150,6 +150,17 @@ class _ShapeMatchingCaptchaWidgetState
         _selectedIndices.remove(index);
         _shapes[index].isSelected = false;
       } else {
+        // Only enforce limit if target shapes are 3 or less
+        if (_targetShapes.length <= 3 && _selectedIndices.length >= _targetShapes.length) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Maximum ${_targetShapes.length} shapes can be selected'),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
         _selectedIndices.add(index);
         _shapes[index].isSelected = true;
       }
@@ -157,8 +168,8 @@ class _ShapeMatchingCaptchaWidgetState
   }
 
   void _verifySelection() {
-    if (_selectedIndices.length != 3) {
-      _showError('Please select exactly 3 shapes');
+    if (_selectedIndices.length != _targetShapes.length) {
+      _showError('Please select exactly ${_targetShapes.length} shapes');
       return;
     }
 
