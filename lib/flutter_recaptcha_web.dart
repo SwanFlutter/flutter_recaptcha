@@ -13,21 +13,51 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:web/web.dart' as web;
 
 import 'flutter_recaptcha_platform_interface.dart';
+import 'src/tools/recaptcha_config.dart';
+import 'src/tools/recaptcha_result.dart';
 
-/// A web implementation of the FlutterRecaptchaPlatform of the FlutterRecaptcha plugin.
+/// Web platform implementation of Flutter reCAPTCHA platform interface.
+///
+/// This class provides web-specific implementations for reCAPTCHA functionality including:
+/// - Simulated verification with scoring algorithms
+/// - Browser-based device fingerprinting
+/// - Behavioral analysis simulation for web interactions
+/// - Limited biometric authentication support via WebAuthn
+/// - Cross-browser compatibility and fallback handling
+///
+/// Web-specific features:
+/// - Uses browser APIs for device identification
+/// - Simulates behavioral tracking with mouse/keyboard events
+/// - Generates device fingerprints from browser characteristics
+/// - Provides fallback verification when native APIs unavailable
+///
+/// Limitations:
+/// - Biometric authentication depends on WebAuthn browser support
+/// - Behavioral analysis is simulated rather than fully implemented
+/// - Some native mobile features are not available on web
+///
+/// Note: This implementation is automatically used on web platforms.
+/// Developers typically use [FlutterRecaptcha.instance] for API access.
 class FlutterRecaptchaWeb extends FlutterRecaptchaPlatform {
-  /// Constructs a FlutterRecaptchaWeb
+  /// Creates a new instance of FlutterRecaptchaWeb
+  ///
+  /// Initializes internal state for web platform operations
   FlutterRecaptchaWeb();
 
   RecaptchaConfig? _config;
   DateTime? _behavioralStartTime;
   final List<Map<String, dynamic>> _behavioralData = [];
 
+  /// Registers this web implementation with the Flutter plugin system
+  ///
+  /// Called automatically during plugin initialization on web platforms
   static void registerWith(Registrar registrar) {
     FlutterRecaptchaPlatform.instance = FlutterRecaptchaWeb();
   }
 
-  /// Returns a [String] containing the version of the platform.
+  /// Gets the web platform version information
+  ///
+  /// Returns the browser user agent string as platform identifier
   @override
   Future<String?> getPlatformVersion() async {
     final version = web.window.navigator.userAgent;
@@ -50,8 +80,9 @@ class FlutterRecaptchaWeb extends FlutterRecaptchaPlatform {
 
     return RecaptchaResult(
       success: success,
-      token:
-          success ? 'web_token_${DateTime.now().millisecondsSinceEpoch}' : null,
+      token: success
+          ? 'web_token_${DateTime.now().millisecondsSinceEpoch}'
+          : null,
       score: score,
       challengeType: 'traditional',
       metadata: {
@@ -124,10 +155,9 @@ class FlutterRecaptchaWeb extends FlutterRecaptchaPlatform {
 
     return RecaptchaResult(
       success: score > 0.6,
-      token:
-          score > 0.6
-              ? 'behavioral_token_${DateTime.now().millisecondsSinceEpoch}'
-              : null,
+      token: score > 0.6
+          ? 'behavioral_token_${DateTime.now().millisecondsSinceEpoch}'
+          : null,
       score: score,
       challengeType: 'behavioral',
       metadata: {
@@ -189,8 +219,9 @@ class FlutterRecaptchaWeb extends FlutterRecaptchaPlatform {
     if (_behavioralData.length > 10) score += 0.1; // Some interaction data
 
     // Analyze mouse movement patterns
-    final mouseEvents =
-        _behavioralData.where((e) => e['type'] == 'mousemove').toList();
+    final mouseEvents = _behavioralData
+        .where((e) => e['type'] == 'mousemove')
+        .toList();
     if (mouseEvents.length > 5) {
       score += 0.1; // Natural mouse movement
     }
@@ -199,8 +230,9 @@ class FlutterRecaptchaWeb extends FlutterRecaptchaPlatform {
   }
 
   Map<String, dynamic> _analyzeBehavioralPatterns() {
-    final interactionEvents =
-        _behavioralData.where((e) => e['type'] == 'interaction').toList();
+    final interactionEvents = _behavioralData
+        .where((e) => e['type'] == 'interaction')
+        .toList();
 
     return {
       'totalEvents': _behavioralData.length,

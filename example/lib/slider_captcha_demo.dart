@@ -1,49 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_recaptcha/flutter_recaptcha.dart';
 
-class RotationCaptchaDemoPage extends StatefulWidget {
-  const RotationCaptchaDemoPage({super.key});
+class SliderCaptchaDemoPage extends StatefulWidget {
+  const SliderCaptchaDemoPage({super.key});
 
   @override
-  State<RotationCaptchaDemoPage> createState() =>
-      _RotationCaptchaDemoPageState();
+  State<SliderCaptchaDemoPage> createState() => _SliderCaptchaDemoPageState();
 }
 
-class _RotationCaptchaDemoPageState extends State<RotationCaptchaDemoPage> {
-  String _status = 'Click the button to start verification';
+class _SliderCaptchaDemoPageState extends State<SliderCaptchaDemoPage> {
+  String _status = 'Click to start verification';
   Color _statusColor = Colors.grey;
 
-  void _showRotationCaptcha() {
-    setState(() {
-      _status = 'Rotate the inner circle to match the outer circle';
-      _statusColor = Colors.blue;
-    });
-
+  void _showSliderCaptcha() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
-          width: 380,
-          padding: const EdgeInsets.all(24),
+          width: 340,
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(width: 24),
-                  const Expanded(
-                    child: Text(
-                      'Drag the slider to fit the puzzle',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                  const Text(
+                    "Slide to Verify",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.grey),
@@ -53,26 +39,21 @@ class _RotationCaptchaDemoPageState extends State<RotationCaptchaDemoPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
-
-              RotationCaptchaWidget(
-                imagePath: 'assets/dog_outer.jpg',
-                width: 240,
-                height: 240,
-                sliderWidth: 300,
-                tolerance: 10.0,
+              const SizedBox(height: 16),
+              SliderCaptchaWidget(
+                imageProvider: const AssetImage('assets/dog_outer.jpg'),
+                width: 280,
+                height: 180,
+                sliderWidth: 280,
                 onSuccess: () {
-                  Navigator.of(context).pop();
+                  Navigator.pop(context);
                   setState(() {
                     _status = '✓ Verification successful!';
                     _statusColor = Colors.green;
                   });
                 },
                 onFailed: () {
-                  setState(() {
-                    _status = '✗ Verification failed. Try again.';
-                    _statusColor = Colors.red;
-                  });
+                  // Optional: update local status or vibrate
                 },
               ),
             ],
@@ -86,11 +67,11 @@ class _RotationCaptchaDemoPageState extends State<RotationCaptchaDemoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rotation CAPTCHA Demo'),
+        title: const Text('Slider Puzzle Demo'),
         backgroundColor: Colors.blue,
       ),
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -100,7 +81,7 @@ class _RotationCaptchaDemoPageState extends State<RotationCaptchaDemoPage> {
                     ? Icons.check_circle
                     : _statusColor == Colors.red
                     ? Icons.error
-                    : Icons.rotate_right,
+                    : Icons.extension,
                 size: 80,
                 color: _statusColor,
               ),
@@ -115,8 +96,9 @@ class _RotationCaptchaDemoPageState extends State<RotationCaptchaDemoPage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 48),
+
               ElevatedButton.icon(
-                onPressed: _showRotationCaptcha,
+                onPressed: _showSliderCaptcha,
                 icon: const Icon(Icons.security),
                 label: const Text('Start Verification'),
                 style: ElevatedButton.styleFrom(
@@ -127,7 +109,8 @@ class _RotationCaptchaDemoPageState extends State<RotationCaptchaDemoPage> {
                   textStyle: const TextStyle(fontSize: 16),
                 ),
               ),
-              const SizedBox(height: 24),
+
+              const SizedBox(height: 48),
               const Card(
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
@@ -142,10 +125,10 @@ class _RotationCaptchaDemoPageState extends State<RotationCaptchaDemoPage> {
                         ),
                       ),
                       SizedBox(height: 8),
-                      Text('1. A circular puzzle is displayed'),
-                      Text('2. The inner piece is rotated randomly'),
-                      Text('3. Drag the slider to rotate the inner piece'),
-                      Text('4. Align the image to complete verification'),
+                      Text('1. A puzzle piece is cut from the image'),
+                      Text('2. Drag the slider to move the piece'),
+                      Text('3. Align the piece with the hole'),
+                      Text('4. Release to verify'),
                     ],
                   ),
                 ),

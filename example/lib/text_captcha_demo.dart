@@ -1,49 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_recaptcha/flutter_recaptcha.dart';
 
-class RotationCaptchaDemoPage extends StatefulWidget {
-  const RotationCaptchaDemoPage({super.key});
+class TextCaptchaDemoPage extends StatefulWidget {
+  const TextCaptchaDemoPage({super.key});
 
   @override
-  State<RotationCaptchaDemoPage> createState() =>
-      _RotationCaptchaDemoPageState();
+  State<TextCaptchaDemoPage> createState() => _TextCaptchaDemoPageState();
 }
 
-class _RotationCaptchaDemoPageState extends State<RotationCaptchaDemoPage> {
-  String _status = 'Click the button to start verification';
+class _TextCaptchaDemoPageState extends State<TextCaptchaDemoPage> {
+  String _status = 'Click to start verification';
   Color _statusColor = Colors.grey;
 
-  void _showRotationCaptcha() {
-    setState(() {
-      _status = 'Rotate the inner circle to match the outer circle';
-      _statusColor = Colors.blue;
-    });
-
+  void _showCaptchaDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Container(
-          width: 380,
-          padding: const EdgeInsets.all(24),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(width: 24),
-                  const Expanded(
-                    child: Text(
-                      'Drag the slider to fit the puzzle',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                  const Text(
+                    "Enter Security Code",
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.grey),
@@ -53,26 +38,26 @@ class _RotationCaptchaDemoPageState extends State<RotationCaptchaDemoPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
-
-              RotationCaptchaWidget(
-                imagePath: 'assets/dog_outer.jpg',
-                width: 240,
-                height: 240,
-                sliderWidth: 300,
-                tolerance: 10.0,
+              const SizedBox(height: 16),
+              TextCaptchaWidget(
+                width: 280,
+                height: 250,
+                length: 5,
                 onSuccess: () {
-                  Navigator.of(context).pop();
+                  Navigator.pop(context);
                   setState(() {
                     _status = '✓ Verification successful!';
                     _statusColor = Colors.green;
                   });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Verified!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
                 },
                 onFailed: () {
-                  setState(() {
-                    _status = '✗ Verification failed. Try again.';
-                    _statusColor = Colors.red;
-                  });
+                  // Status handled inside widget or we can show snackbar
                 },
               ),
             ],
@@ -86,11 +71,11 @@ class _RotationCaptchaDemoPageState extends State<RotationCaptchaDemoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rotation CAPTCHA Demo'),
+        title: const Text('Text CAPTCHA Demo'),
         backgroundColor: Colors.blue,
       ),
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -100,7 +85,7 @@ class _RotationCaptchaDemoPageState extends State<RotationCaptchaDemoPage> {
                     ? Icons.check_circle
                     : _statusColor == Colors.red
                     ? Icons.error
-                    : Icons.rotate_right,
+                    : Icons.text_fields,
                 size: 80,
                 color: _statusColor,
               ),
@@ -115,19 +100,13 @@ class _RotationCaptchaDemoPageState extends State<RotationCaptchaDemoPage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 48),
-              ElevatedButton.icon(
-                onPressed: _showRotationCaptcha,
-                icon: const Icon(Icons.security),
-                label: const Text('Start Verification'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 16,
-                  ),
-                  textStyle: const TextStyle(fontSize: 16),
-                ),
+
+              ElevatedButton(
+                onPressed: _showCaptchaDialog,
+                child: const Text('Start Verification'),
               ),
-              const SizedBox(height: 24),
+
+              const SizedBox(height: 48),
               const Card(
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
@@ -135,17 +114,17 @@ class _RotationCaptchaDemoPageState extends State<RotationCaptchaDemoPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'How it works:',
+                        'Features:',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       SizedBox(height: 8),
-                      Text('1. A circular puzzle is displayed'),
-                      Text('2. The inner piece is rotated randomly'),
-                      Text('3. Drag the slider to rotate the inner piece'),
-                      Text('4. Align the image to complete verification'),
+                      Text('• Random alphanumeric code generation'),
+                      Text('• Visual noise (lines, rotation) to prevent OCR'),
+                      Text('• Refresh capability'),
+                      Text('• Simple text input verification'),
                     ],
                   ),
                 ),

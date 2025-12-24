@@ -2,13 +2,35 @@ library;
 
 import 'dart:async';
 
-import 'flutter_recaptcha_platform_interface.dart';
+import 'package:flutter/material.dart';
 
+import 'flutter_recaptcha_platform_interface.dart';
+import 'src/tools/challenge_difficulty.dart';
+import 'src/tools/recaptcha_config.dart';
+import 'src/tools/recaptcha_result.dart';
+import 'src/tools/recaptcha_type.dart';
+import 'src/widgets/fingerprint_captcha_widget.dart';
+import 'src/widgets/grid_captcha_widget.dart';
+import 'src/widgets/math_puzzle_captcha_widget.dart';
+import 'src/widgets/number_triangle_captcha_widget.dart';
+import 'src/widgets/rotation_captcha_widget.dart';
+import 'src/widgets/shape_matching_captcha_widget.dart';
+import 'src/widgets/slider_captcha_widget.dart';
+import 'src/widgets/text_captcha_widget.dart';
+
+export 'src/tools/challenge_difficulty.dart';
+export 'src/tools/recaptcha_type.dart';
 // Export all public APIs
-export 'flutter_recaptcha_platform_interface.dart'
-    show RecaptchaConfig, RecaptchaResult, RecaptchaType, ChallengeDifficulty;
-export 'widgets/recaptcha_widget.dart';
-export 'widgets/rotation_captcha_widget.dart';
+
+export 'src/widgets/fingerprint_captcha_widget.dart';
+export 'src/widgets/grid_captcha_widget.dart';
+export 'src/widgets/math_puzzle_captcha_widget.dart';
+export 'src/widgets/number_triangle_captcha_widget.dart';
+export 'src/widgets/recaptcha_widget.dart';
+export 'src/widgets/rotation_captcha_widget.dart';
+export 'src/widgets/shape_matching_captcha_widget.dart';
+export 'src/widgets/slider_captcha_widget.dart';
+export 'src/widgets/text_captcha_widget.dart';
 
 /// Main class for Flutter reCAPTCHA plugin
 class FlutterRecaptcha {
@@ -246,5 +268,167 @@ class FlutterRecaptcha {
   /// Generate a mock token
   String _generateToken() {
     return 'recaptcha_token_${DateTime.now().millisecondsSinceEpoch}';
+  }
+
+  // Widget Factory Methods
+
+  /// Creates a Grid CAPTCHA widget for pattern recognition challenges
+  ///
+  /// Returns a widget that displays a 3x3 grid with various challenges
+  static Widget gridCaptcha({
+    double width = 300,
+    VoidCallback? onSuccess,
+    VoidCallback? onFailed,
+    String? title,
+  }) {
+    return GridCaptchaWidget(
+      width: width,
+      onSuccess: onSuccess,
+      onFailed: onFailed,
+      title: title,
+    );
+  }
+
+  /// Creates a Math Puzzle CAPTCHA widget
+  ///
+  /// Returns a widget that presents mathematical equations to solve
+  static Widget mathPuzzleCaptcha({
+    required Function(bool) onVerified,
+    String? title,
+    Color? primaryColor,
+    ChallengeDifficulty difficulty = ChallengeDifficulty.medium,
+  }) {
+    return MathPuzzleCaptchaWidget(
+      onVerified: onVerified,
+      title: title,
+      primaryColor: primaryColor,
+      difficulty: difficulty,
+    );
+  }
+
+  /// Creates a Number Triangle CAPTCHA widget
+  ///
+  /// Returns a widget that displays a number triangle pattern challenge
+  static Widget numberTriangleCaptcha({
+    required Function(bool) onVerified,
+    String? title,
+    Color? primaryColor,
+    double? size,
+  }) {
+    return NumberTriangleCaptchaWidget(
+      onVerified: onVerified,
+      title: title,
+      primaryColor: primaryColor,
+      size: size,
+    );
+  }
+
+  /// Creates a Rotation CAPTCHA widget
+  ///
+  /// Returns a widget that requires rotating an inner circle to align with outer circle
+  static Widget rotationCaptcha({
+    ImageProvider? imageProvider,
+    String? imagePath,
+    double width = 240,
+    double height = 240,
+    double? sliderWidth,
+    double innerRadiusRatio = 0.66,
+    VoidCallback? onSuccess,
+    VoidCallback? onFailed,
+    double tolerance = 10.0,
+    Duration animationDuration = const Duration(milliseconds: 500),
+  }) {
+    return RotationCaptchaWidget(
+      imageProvider: imageProvider,
+      imagePath: imagePath,
+      width: width,
+      height: height,
+      sliderWidth: sliderWidth,
+      innerRadiusRatio: innerRadiusRatio,
+      onSuccess: onSuccess,
+      onFailed: onFailed,
+      tolerance: tolerance,
+      animationDuration: animationDuration,
+    );
+  }
+
+  /// Creates a Shape Matching CAPTCHA widget
+  ///
+  /// Returns a widget that requires matching shapes by type and color
+  static Widget shapeMatchingCaptcha({
+    required Function(bool) onVerified,
+    String? title,
+    Color? primaryColor,
+    double? size,
+  }) {
+    return ShapeMatchingCaptchaWidget(
+      onVerified: onVerified,
+      title: title,
+      primaryColor: primaryColor,
+      size: size,
+    );
+  }
+
+  /// Creates a Slider CAPTCHA widget
+  ///
+  /// Returns a widget that requires sliding a puzzle piece to match position
+  static Widget sliderCaptcha({
+    required ImageProvider imageProvider,
+    double width = 300,
+    double height = 150,
+    double sliderWidth = 300,
+    VoidCallback? onSuccess,
+    VoidCallback? onFailed,
+    double tolerance = 0.05,
+  }) {
+    return SliderCaptchaWidget(
+      imageProvider: imageProvider,
+      width: width,
+      height: height,
+      sliderWidth: sliderWidth,
+      onSuccess: onSuccess,
+      onFailed: onFailed,
+      tolerance: tolerance,
+    );
+  }
+
+  /// Creates a Text CAPTCHA widget
+  ///
+  /// Returns a widget that displays a text code to be entered
+  static Widget textCaptcha({
+    double width = 300,
+    double height = 200,
+    int length = 5,
+    VoidCallback? onSuccess,
+    VoidCallback? onFailed,
+    TextStyle? codeStyle,
+    InputDecoration? inputDecoration,
+  }) {
+    return TextCaptchaWidget(
+      width: width,
+      height: height,
+      length: length,
+      onSuccess: onSuccess,
+      onFailed: onFailed,
+      codeStyle: codeStyle,
+      inputDecoration: inputDecoration,
+    );
+  }
+
+  /// Creates a Fingerprint CAPTCHA widget
+  ///
+  /// Returns a widget that simulates fingerprint scanning verification
+  static Widget fingerprintCaptcha({
+    required Function(bool) onVerified,
+    String? title,
+    Color? primaryColor,
+    double? size,
+  }) {
+    return FingerprintCaptchaWidget(
+      onVerified: onVerified,
+      title: title,
+      primaryColor: primaryColor,
+      size: size,
+    );
   }
 }

@@ -1,14 +1,64 @@
 import 'package:flutter/material.dart';
 
-import '../flutter_recaptcha.dart';
+import '../../flutter_recaptcha.dart';
+import '../tools/recaptcha_config.dart';
+import '../tools/recaptcha_result.dart';
 
-/// A convenient widget that wraps reCAPTCHA functionality
+/// A convenient widget that wraps reCAPTCHA functionality with automatic initialization.
+///
+/// This widget provides a simple way to integrate reCAPTCHA verification in your app:
+/// - Automatic initialization on widget creation
+/// - Loading states and error handling
+/// - Flexible child widget or default button UI
+/// - Manual or automatic verification triggers
+///
+/// Example usage:
+/// ```dart
+/// RecaptchaWidget(
+///   config: RecaptchaConfig(
+///     siteKey: 'YOUR_SITE_KEY',
+///     type: RecaptchaType.smart,
+///   ),
+///   action: 'login',
+///   onResult: (result) {
+///     if (result.success) {
+///       print('Verification successful!');
+///     }
+///   },
+///   onError: (error) {
+///     print('Error: $error');
+///   },
+/// )
+/// ```
 class RecaptchaWidget extends StatefulWidget {
+  /// Configuration for the reCAPTCHA service
+  ///
+  /// Includes site key, type, and other verification settings
   final RecaptchaConfig config;
+
+  /// Optional action name for the verification
+  ///
+  /// Helps track what action is being verified (e.g., 'login', 'submit')
   final String? action;
+
+  /// Optional child widget to display instead of default UI
+  ///
+  /// If provided, the widget will act as a wrapper and handle verification logic
   final Widget? child;
+
+  /// Callback function called when verification is completed
+  ///
+  /// Provides the full RecaptchaResult with success status and metadata
   final Function(RecaptchaResult)? onResult;
+
+  /// Callback function called when an error occurs
+  ///
+  /// Provides error message string for debugging or user feedback
   final Function(String)? onError;
+
+  /// Whether to automatically initialize on widget creation
+  ///
+  /// Defaults to true. Set to false for manual initialization.
   final bool autoInitialize;
 
   const RecaptchaWidget({
@@ -108,14 +158,53 @@ class _RecaptchaWidgetState extends State<RecaptchaWidget> {
   }
 }
 
-/// A button that automatically handles reCAPTCHA verification
+/// A button that automatically handles reCAPTCHA verification with built-in loading states.
+///
+/// This widget combines a button with reCAPTCHA functionality:
+/// - Automatic initialization and verification
+/// - Loading indicator during verification
+/// - Customizable button styling
+/// - Success and error callbacks
+///
+/// Example usage:
+/// ```dart
+/// RecaptchaButton(
+///   config: RecaptchaConfig(
+///     siteKey: 'YOUR_SITE_KEY',
+///     type: RecaptchaType.smart,
+///   ),
+///   action: 'submit_form',
+///   onVerified: (result) {
+///     print('Verified! Token: ${result.token}');
+///   },
+///   onError: (error) {
+///     print('Error: $error');
+///   },
+///   child: const Text('Submit Form'),
+/// )
+/// ```
 class RecaptchaButton extends StatefulWidget {
+  /// Configuration for the reCAPTCHA service
   final RecaptchaConfig config;
+
+  /// Optional action name for the verification
   final String? action;
+
+  /// The button child widget (typically Text or Icon)
   final Widget child;
+
+  /// Optional callback when button is pressed and verification succeeds
   final VoidCallback? onPressed;
+
+  /// Callback function called when verification is successful
+  ///
+  /// Provides the full RecaptchaResult with token and metadata
   final Function(RecaptchaResult)? onVerified;
+
+  /// Callback function called when an error occurs
   final Function(String)? onError;
+
+  /// Optional button styling
   final ButtonStyle? style;
 
   const RecaptchaButton({
@@ -188,19 +277,59 @@ class _RecaptchaButtonState extends State<RecaptchaButton> {
     return ElevatedButton(
       style: widget.style,
       onPressed: _isLoading ? null : _handlePress,
-      child:
-          _isLoading
-              ? const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-              : widget.child,
+      child: _isLoading
+          ? const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : widget.child,
     );
   }
 }
 
-/// A form field that integrates reCAPTCHA verification
+/// A form field that integrates reCAPTCHA verification with form validation.
+///
+/// This widget extends FormField to provide:
+/// - Integration with Flutter form system
+/// - Automatic validation state management
+/// - Error display and validation messages
+/// - Seamless form submission workflow
+///
+/// Example usage:
+/// ```dart
+/// Form(
+///   key: _formKey,
+///   child: Column(
+///     children: [
+///       TextFormField(
+///         decoration: InputDecoration(labelText: 'Email'),
+///         validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+///       ),
+///       RecaptchaFormField(
+///         config: RecaptchaConfig(
+///           siteKey: 'YOUR_SITE_KEY',
+///           type: RecaptchaType.smart,
+///         ),
+///         validator: (isVerified) {
+///           return isVerified == true ? null : 'Please verify you are human';
+///         },
+///         onVerified: (result) {
+///           print('reCAPTCHA verified!');
+///         },
+///       ),
+///       ElevatedButton(
+///         onPressed: () {
+///           if (_formKey.currentState!.validate()) {
+///             // Submit form
+///           }
+///         },
+///         child: Text('Submit'),
+///       ),
+///     ],
+///   ),
+/// )
+/// ```
 class RecaptchaFormField extends FormField<bool> {
   RecaptchaFormField({
     super.key,

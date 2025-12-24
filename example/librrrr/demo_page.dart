@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_recaptcha/flutter_recaptcha.dart';
-import 'package:flutter_recaptcha_example/simple_example.dart';
-import 'package:flutter_recaptcha_example/widget_example.dart';
+
+import 'simple_example.dart';
+import 'widget_example.dart';
+
 
 /// صفحه نمایش ویژگی‌های reCAPTCHA مدرن
 class RecaptchaDemoPage extends StatefulWidget {

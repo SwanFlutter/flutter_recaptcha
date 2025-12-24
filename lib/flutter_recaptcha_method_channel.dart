@@ -2,10 +2,33 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'flutter_recaptcha_platform_interface.dart';
+import 'src/tools/recaptcha_config.dart';
+import 'src/tools/recaptcha_result.dart';
 
-/// An implementation of [FlutterRecaptchaPlatform] that uses method channels.
+/// Method channel implementation for Flutter reCAPTCHA platform interface.
+///
+/// This class handles communication between Flutter and native platforms (Android/iOS)
+/// through method channels for reCAPTCHA functionality including:
+/// - Service initialization and configuration
+/// - User verification and challenge execution
+/// - Biometric authentication support
+/// - Behavioral analysis tracking
+/// - Device fingerprinting
+/// - State management and reset operations
+///
+/// This is the default implementation used on mobile platforms and provides:
+/// - Error handling with PlatformException catching
+/// - Debug logging for troubleshooting
+/// - Safe fallback values for failed operations
+/// - Type-safe result parsing and validation
+///
+/// Note: This class is typically not used directly by developers.
+/// Use [FlutterRecaptcha.instance] for API access instead.
 class MethodChannelFlutterRecaptcha extends FlutterRecaptchaPlatform {
-  /// The method channel used to interact with the native platform.
+  /// The method channel used to communicate with native platform code
+  ///
+  /// Channel name: 'flutter_recaptcha'
+  /// Visible for testing purposes to allow mock injection
   @visibleForTesting
   final methodChannel = const MethodChannel('flutter_recaptcha');
 

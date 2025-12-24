@@ -3,6 +3,7 @@
 A comprehensive Flutter plugin for implementing various types of CAPTCHA verification including:
 - Smart reCAPTCHA with adaptive challenge selection
 - Biometric Authentication (Fingerprint/Face ID)
+- **Fingerprint CAPTCHA** - New! ✨
 - Behavioral Analysis
 - **Rotation CAPTCHA** - New! ✨
 - Pattern Recognition Challenges
@@ -26,12 +27,32 @@ A comprehensive Flutter plugin for implementing various types of CAPTCHA verific
 - Beautiful and user-friendly interface
 - Customizable tolerance and animation
 
-### 3. Biometric Authentication
+### 3. Fingerprint CAPTCHA (New!)
+- Interactive fingerprint scanning interface
+- Animated scanner with pulsing effects
+- Progress indicator during verification
+- Visual feedback for success/failure states
+- Customizable colors and sizes
+- Simulated biometric verification for demo purposes
+
+### 4. Text CAPTCHA (Numbers/Letters)
+- Simple text-based verification
+- Customizable code length and style
+- Built-in refresh mechanism
+- Secure visual noise generation
+
+### 5. Slider CAPTCHA (Puzzle)
+- Classic jigsaw puzzle piece interaction
+- Smooth sliding animation
+- High-performance CustomPainter implementation
+- Customizable images and tolerance
+
+### 6. Biometric Authentication
 - Fingerprint and Face ID support
 - Seamless integration with device biometric systems
 - Platform-specific implementation (Android/iOS)
 
-### 4. Behavioral Analysis
+### 7. Behavioral Analysis
 - Analyzes user interaction patterns
 - Distinguishes human behavior from bots
 - Non-intrusive verification
@@ -182,7 +203,431 @@ showDialog(
 );
 ```
 
-### 4. Using RecaptchaButton
+### 7. Using FlutterRecaptcha Factory Methods
+
+All CAPTCHA widgets can now be accessed through the `FlutterRecaptcha` class using factory methods:
+
+#### 7.1. Grid CAPTCHA
+
+```dart
+import 'package:flutter_recaptcha/flutter_recaptcha.dart';
+
+// Using factory method
+Widget gridCaptcha = FlutterRecaptcha.gridCaptcha(
+  width: 300,
+  title: 'Security Check',
+  onSuccess: () {
+    print('Pattern verified successfully!');
+  },
+  onFailed: () {
+    print('Pattern verification failed');
+  },
+);
+
+// In your widget tree
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(title: Text('Grid CAPTCHA')),
+    body: Center(
+      child: FlutterRecaptcha.gridCaptcha(
+        width: 300,
+        onSuccess: () => Navigator.pop(context, true),
+      ),
+    ),
+  );
+}
+```
+
+#### 7.2. Math Puzzle CAPTCHA
+
+```dart
+import 'package:flutter_recaptcha/flutter_recaptcha.dart';
+
+// Using factory method with difficulty levels
+Widget mathCaptcha = FlutterRecaptcha.mathPuzzleCaptcha(
+  onVerified: (isSuccess) {
+    if (isSuccess) {
+      print('Math puzzle solved correctly!');
+    }
+  },
+  title: 'Solve the Equation',
+  difficulty: ChallengeDifficulty.medium,
+  primaryColor: Colors.blue,
+);
+
+// Example with different difficulty levels
+class MathCaptchaDemo extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          // Easy level
+          FlutterRecaptcha.mathPuzzleCaptcha(
+            onVerified: (success) => print('Easy: $success'),
+            difficulty: ChallengeDifficulty.easy,
+          ),
+          SizedBox(height: 20),
+          // Hard level
+          FlutterRecaptcha.mathPuzzleCaptcha(
+            onVerified: (success) => print('Hard: $success'),
+            difficulty: ChallengeDifficulty.hard,
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+#### 7.3. Number Triangle CAPTCHA
+
+```dart
+import 'package:flutter_recaptcha/flutter_recaptcha.dart';
+
+// Using factory method
+Widget triangleCaptcha = FlutterRecaptcha.numberTriangleCaptcha(
+  onVerified: (isSuccess) {
+    if (isSuccess) {
+      print('Number triangle solved!');
+    }
+  },
+  title: 'Number Triangle Challenge',
+  primaryColor: Colors.purple,
+  size: 120,
+);
+
+// In a dialog
+void showTriangleCaptcha(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: FlutterRecaptcha.numberTriangleCaptcha(
+          onVerified: (success) {
+            if (success) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('✓ Verified!')),
+              );
+            }
+          },
+        ),
+      ),
+    ),
+  );
+}
+```
+
+#### 7.4. Rotation CAPTCHA
+
+```dart
+import 'package:flutter_recaptcha/flutter_recaptcha.dart';
+
+// Using factory method with image
+Widget rotationCaptcha = FlutterRecaptcha.rotationCaptcha(
+  imagePath: 'assets/captcha_image.jpg',
+  width: 300,
+  height: 300,
+  tolerance: 15.0,
+  onSuccess: () {
+    print('Rotation puzzle solved!');
+  },
+  onFailed: () {
+    print('Try again!');
+  },
+);
+
+// Using with ImageProvider
+Widget rotationWithProvider = FlutterRecaptcha.rotationCaptcha(
+  imageProvider: AssetImage('assets/dog.jpg'),
+  width: 240,
+  height: 240,
+  innerRadiusRatio: 0.66,
+  tolerance: 10.0,
+  animationDuration: Duration(milliseconds: 500),
+  onSuccess: () => print('Success!'),
+);
+
+// Full example
+class RotationCaptchaPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Rotation CAPTCHA')),
+      body: Center(
+        child: FlutterRecaptcha.rotationCaptcha(
+          imagePath: 'assets/puzzle.jpg',
+          onSuccess: () {
+            Navigator.pop(context, true);
+          },
+        ),
+      ),
+    );
+  }
+}
+```
+
+#### 7.5. Shape Matching CAPTCHA
+
+```dart
+import 'package:flutter_recaptcha/flutter_recaptcha.dart';
+
+// Using factory method
+Widget shapeCaptcha = FlutterRecaptcha.shapeMatchingCaptcha(
+  onVerified: (isSuccess) {
+    if (isSuccess) {
+      print('Shapes matched correctly!');
+    }
+  },
+  title: 'Match the Shapes',
+  primaryColor: Colors.orange,
+  size: 60,
+);
+
+// In a form
+class ShapeCaptchaForm extends StatefulWidget {
+  @override
+  _ShapeCaptchaFormState createState() => _ShapeCaptchaFormState();
+}
+
+class _ShapeCaptchaFormState extends State<ShapeCaptchaForm> {
+  bool _isVerified = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        FlutterRecaptcha.shapeMatchingCaptcha(
+          onVerified: (success) {
+            setState(() => _isVerified = success);
+          },
+          primaryColor: Colors.teal,
+        ),
+        SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: _isVerified ? () => submitForm() : null,
+          child: Text('Submit'),
+        ),
+      ],
+    );
+  }
+
+  void submitForm() {
+    print('Form submitted!');
+  }
+}
+```
+
+#### 7.6. Slider CAPTCHA
+
+```dart
+import 'package:flutter_recaptcha/flutter_recaptcha.dart';
+
+// Using factory method
+Widget sliderCaptcha = FlutterRecaptcha.sliderCaptcha(
+  imageProvider: AssetImage('assets/puzzle_image.jpg'),
+  width: 300,
+  height: 150,
+  tolerance: 0.05,
+  onSuccess: () {
+    print('Slider puzzle solved!');
+  },
+  onFailed: () {
+    print('Try again!');
+  },
+);
+
+// With custom dimensions
+Widget customSlider = FlutterRecaptcha.sliderCaptcha(
+  imageProvider: NetworkImage('https://example.com/image.jpg'),
+  width: 400,
+  height: 200,
+  sliderWidth: 400,
+  tolerance: 0.03, // More precise
+  onSuccess: () => print('Success!'),
+);
+
+// Full example
+class SliderCaptchaPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Slider CAPTCHA')),
+      body: Center(
+        child: FlutterRecaptcha.sliderCaptcha(
+          imageProvider: AssetImage('assets/background.jpg'),
+          onSuccess: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('✓ Puzzle solved!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+```
+
+#### 7.7. Text CAPTCHA
+
+```dart
+import 'package:flutter_recaptcha/flutter_recaptcha.dart';
+
+// Using factory method
+Widget textCaptcha = FlutterRecaptcha.textCaptcha(
+  width: 300,
+  height: 200,
+  length: 6,
+  onSuccess: () {
+    print('Text code verified!');
+  },
+  onFailed: () {
+    print('Incorrect code!');
+  },
+);
+
+// With custom styling
+Widget styledTextCaptcha = FlutterRecaptcha.textCaptcha(
+  width: 350,
+  height: 180,
+  length: 5,
+  codeStyle: TextStyle(
+    fontSize: 32,
+    fontWeight: FontWeight.bold,
+    color: Colors.blue,
+  ),
+  inputDecoration: InputDecoration(
+    labelText: 'Enter Code',
+    border: OutlineInputBorder(),
+    prefixIcon: Icon(Icons.lock),
+  ),
+  onSuccess: () => print('Verified!'),
+);
+
+// In login form
+class LoginWithCaptcha extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        TextField(decoration: InputDecoration(labelText: 'Email')),
+        TextField(decoration: InputDecoration(labelText: 'Password')),
+        SizedBox(height: 20),
+        FlutterRecaptcha.textCaptcha(
+          length: 5,
+          onSuccess: () => print('CAPTCHA verified'),
+        ),
+        ElevatedButton(
+          onPressed: () => print('Login'),
+          child: Text('Login'),
+        ),
+      ],
+    );
+  }
+}
+```
+
+#### 7.8. Fingerprint CAPTCHA
+
+```dart
+import 'package:flutter_recaptcha/flutter_recaptcha.dart';
+
+// Using factory method
+Widget fingerprintCaptcha = FlutterRecaptcha.fingerprintCaptcha(
+  onVerified: (isSuccess) {
+    if (isSuccess) {
+      print('Fingerprint verified!');
+    }
+  },
+  title: 'Verify Your Identity',
+  primaryColor: Colors.blue,
+  size: 120,
+);
+
+// In a dialog
+void showFingerprintDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: FlutterRecaptcha.fingerprintCaptcha(
+          onVerified: (success) {
+            if (success) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('✓ Identity verified!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          },
+          title: 'Biometric Verification',
+          primaryColor: Theme.of(context).primaryColor,
+        ),
+      ),
+    ),
+  );
+}
+
+// Full example with multiple attempts
+class FingerprintVerificationPage extends StatefulWidget {
+  @override
+  _FingerprintVerificationPageState createState() =>
+      _FingerprintVerificationPageState();
+}
+
+class _FingerprintVerificationPageState
+    extends State<FingerprintVerificationPage> {
+  int _attempts = 0;
+  bool _isVerified = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Fingerprint Verification')),
+      body: Center(
+        child: _isVerified
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_circle, size: 100, color: Colors.green),
+                  Text('Verified Successfully!'),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FlutterRecaptcha.fingerprintCaptcha(
+                    onVerified: (success) {
+                      setState(() {
+                        _attempts++;
+                        _isVerified = success;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  Text('Attempts: $_attempts'),
+                ],
+              ),
+      ),
+    );
+  }
+}
+```
+
+### 8. Using RecaptchaButton
 
 ```dart
 RecaptchaButton(
@@ -202,7 +647,7 @@ RecaptchaButton(
 )
 ```
 
-### 5. Using RecaptchaWidget
+### 9. Using RecaptchaWidget
 
 ```dart
 RecaptchaWidget(
@@ -222,7 +667,7 @@ RecaptchaWidget(
 )
 ```
 
-### 6. Form Integration with RecaptchaFormField
+### 10. Form Integration with RecaptchaFormField
 
 ```dart
 Form(
@@ -258,7 +703,7 @@ Form(
 )
 ```
 
-### 7. Biometric Authentication
+### 11. Biometric Authentication
 
 ```dart
 // Check if biometric is available
@@ -274,7 +719,7 @@ if (isAvailable) {
 }
 ```
 
-### 8. Behavioral Analysis
+### 12. Behavioral Analysis
 
 ```dart
 // Start behavioral analysis
@@ -292,7 +737,7 @@ if (result.success) {
 }
 ```
 
-### 9. Device Fingerprinting
+### 13. Device Fingerprinting
 
 ```dart
 // Get device fingerprint
@@ -302,7 +747,7 @@ print('Device Fingerprint: $fingerprint');
 // Use for additional security checks
 ```
 
-### 10. Custom Smart Verification
+### 14. Custom Smart Verification
 
 ```dart
 // Initialize with custom config
@@ -425,6 +870,25 @@ flutter:
 | `stopBehavioralAnalysis()` | Stop and get behavioral results | `Future<RecaptchaResult>` |
 | `getDeviceFingerprint()` | Get device fingerprint | `Future<String>` |
 | `reset()` | Reset reCAPTCHA state | `Future<void>` |
+
+### FingerprintCaptchaWidget Properties
+
+```dart
+class FingerprintCaptchaWidget {
+  final Function(bool) onVerified;    // Callback for verification result
+  final String? title;                // Optional title text
+  final Color? primaryColor;          // Primary color for UI elements
+  final double? size;                 // Size of fingerprint scanner
+}
+```
+
+### FingerprintCaptchaWidget Methods
+
+| Method | Description | Parameters |
+|--------|-------------|------------|
+| `build()` | Builds the widget UI | `BuildContext context` |
+| `_startFingerprintScan()` | Initiates fingerprint scanning | None |
+| `_reset()` | Resets the widget state | None |
 
 ### RecaptchaResult Properties
 
